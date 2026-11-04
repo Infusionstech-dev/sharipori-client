@@ -1,4 +1,5 @@
 import { Hind_Siliguri, Inter, Playfair_Display } from "next/font/google";
+import AuthBootstrap from "@/components/auth/AuthBootstrap";
 import AppToaster from "@/components/layout/AppToaster";
 import Footer from "@/components/layout/Footer";
 import Header from "@/components/layout/Header";
@@ -37,6 +38,7 @@ export default function RootLayout({ children }) {
     >
       <body className="flex min-h-full flex-col bg-bg font-sans text-text">
         <StoreProvider>
+          <AuthBootstrap />
           <Header />
           <main className="flex-1">{children}</main>
           <Footer />
