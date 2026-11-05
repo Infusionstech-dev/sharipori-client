@@ -32,7 +32,7 @@ export default function FloatingChat() {
   }
 
   return (
-    <div className="fixed bottom-18 right-4 z-20 flex flex-col gap-2 md:bottom-6">
+    <div data-floating-chat className="fixed bottom-18 right-4 z-20 flex flex-col gap-2 md:bottom-6">
       {whatsappNumber && (
         <ChatLink
           href={`https://wa.me/${whatsappNumber}`}
