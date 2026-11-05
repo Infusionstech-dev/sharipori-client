@@ -5,10 +5,10 @@ import Skeleton from "@/components/ui/Skeleton";
 
 const SKELETON_COUNT = 6;
 
-export function GridItems({ products, packages }) {
+export function GridItems({ products, packages, highlight }) {
   return products.map((product) => (
     <li key={product.id}>
-      {packages ? <PackageCard product={product} /> : <ProductCard product={product} />}
+      {packages ? <PackageCard product={product} /> : <ProductCard product={product} highlight={highlight} />}
     </li>
   ));
 }
@@ -22,7 +22,7 @@ export function GridSkeletons({ packages }) {
 }
 
 // children are the rows already loaded by "Load more", shown before the current page.
-export default function ProductGrid({ products, packages, isLoading, children }) {
+export default function ProductGrid({ products, packages, isLoading, highlight, children }) {
   return (
     <ul
       aria-busy={isLoading}
@@ -35,7 +35,7 @@ export default function ProductGrid({ products, packages, isLoading, children })
       {isLoading ? (
         <GridSkeletons packages={packages} />
       ) : (
-        <GridItems products={products} packages={packages} />
+        <GridItems products={products} packages={packages} highlight={highlight} />
       )}
     </ul>
   );

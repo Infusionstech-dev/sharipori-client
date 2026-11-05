@@ -5,6 +5,13 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import clsx from "clsx";
 import { formatBDT } from "@/lib/format";
+import {
+  addRecentSearch,
+  clearRecentSearches,
+  cleanQuery,
+  loadRecentSearches,
+  searchHref,
+} from "@/lib/search";
 import { categoryHref } from "@/lib/siteConfig";
 import { useGetSearchSuggestionsQuery } from "@/store/api/searchApi";
 import { SearchIcon } from "./icons";
@@ -22,8 +29,9 @@ export default function SearchBar({ autoFocus = false, onNavigate, onEscape }) {
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
+  const [recent, setRecent] = useState([]);
 
-  const trimmed = text.trim();
+  const trimmed = cleanQuery(text);
 
   useEffect(() => {
     const timer = setTimeout(() => setQuery(trimmed), DEBOUNCE_MS);
@@ -40,21 +48,27 @@ export default function SearchBar({ autoFocus = false, onNavigate, onEscape }) {
     return () => document.removeEventListener("pointerdown", onPointerDown);
   }, []);
 
-  const canSuggest = query.length >= MIN_LENGTH;
+  const showRecent = !trimmed && recent.length > 0;
+  const canSuggest = query.length >= MIN_LENGTH && trimmed.length >= MIN_LENGTH;
   const { currentData, isError } = useGetSearchSuggestionsQuery(query, { skip: !canSuggest });
 
   // currentData is empty while new results load, so old results never answer a new search.
   const products = canSuggest ? (currentData?.products ?? []) : [];
   const categories = canSuggest ? (currentData?.categories ?? []) : [];
   const options = [
+    ...(showRecent ? recent.map((term) => ({ key: `r${term}`, href: searchHref(term), term })) : []),
     ...products.map((item) => ({ key: `p${item.id}`, href: `/product/${item.slug}` })),
     ...categories.map((item) => ({ key: `c${item.id}`, href: categoryHref(item.slug) })),
   ];
 
-  const showPanel = open && trimmed.length >= MIN_LENGTH;
-  const isLoading = showPanel && !isError && (query !== trimmed || !currentData);
+  const showSuggestions = trimmed.length >= MIN_LENGTH;
+  const showPanel = open && (showSuggestions || showRecent);
+  const isLoading = showPanel && showSuggestions && !isError && (query !== trimmed || !currentData);
 
-  const go = (href) => {
+  const go = (href, term) => {
+    if (term) {
+      addRecentSearch(term);
+    }
     setOpen(false);
     setActiveIndex(-1);
     setText("");
@@ -87,9 +101,9 @@ export default function SearchBar({ autoFocus = false, onNavigate, onEscape }) {
   const onSubmit = (event) => {
     event.preventDefault();
     if (activeIndex >= 0 && options[activeIndex]) {
-      go(options[activeIndex].href);
+      go(options[activeIndex].href, options[activeIndex].term);
     } else if (trimmed) {
-      go(`/search?q=${encodeURIComponent(trimmed)}`);
+      go(searchHref(trimmed), trimmed);
     }
   };
 
@@ -102,7 +116,7 @@ export default function SearchBar({ autoFocus = false, onNavigate, onEscape }) {
       // Keeps focus in the text box until the click has landed.
       onMouseDown: (event) => event.preventDefault(),
       onMouseEnter: () => setActiveIndex(index),
-      onClick: () => go(options[index].href),
+      onClick: () => go(options[index].href, options[index].term),
       className: clsx(OPTION_CLASS, "cursor-pointer", active && "bg-soft"),
     };
   };
@@ -128,7 +142,10 @@ export default function SearchBar({ autoFocus = false, onNavigate, onEscape }) {
             setOpen(true);
             setActiveIndex(-1);
           }}
-          onFocus={() => setOpen(true)}
+          onFocus={() => {
+            setRecent(loadRecentSearches());
+            setOpen(true);
+          }}
           onKeyDown={onKeyDown}
           className="h-11 w-full rounded-lg border border-text/20 bg-bg pl-10 pr-3 text-base outline-none placeholder:text-text/50 focus:border-primary focus:ring-1 focus:ring-primary md:text-sm"
         />
@@ -141,6 +158,30 @@ export default function SearchBar({ autoFocus = false, onNavigate, onEscape }) {
         hidden={!showPanel}
         className="absolute inset-x-0 top-full z-40 mt-1 max-h-[70dvh] overflow-y-auto rounded-lg bg-white py-1 shadow-lg ring-1 ring-text/10"
       >
+        {showRecent && (
+          <div role="group" aria-label="Recent searches">
+            <div className="flex items-center justify-between px-3 py-1">
+              <p className="text-xs font-semibold uppercase text-text/70">Recent searches</p>
+              <button
+                type="button"
+                onMouseDown={(event) => event.preventDefault()}
+                onClick={() => {
+                  clearRecentSearches();
+                  setRecent([]);
+                  setActiveIndex(-1);
+                }}
+                className="rounded text-xs text-primary underline underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+              >
+                Clear
+              </button>
+            </div>
+            {recent.map((term, index) => (
+              <div key={term} {...optionProps(index)}>
+                {term}
+              </div>
+            ))}
+          </div>
+        )}
         {products.length > 0 && (
           <div role="group" aria-label="Products">
             <p className="px-3 py-1 text-xs font-semibold uppercase text-text/70">Products</p>
@@ -178,12 +219,12 @@ export default function SearchBar({ autoFocus = false, onNavigate, onEscape }) {
           </div>
         )}
         {isLoading && <p className="px-3 py-2 text-sm text-text/70">Searching…</p>}
-        {!isLoading && isError && (
+        {showSuggestions && !isLoading && isError && (
           <p className="px-3 py-2 text-sm text-text/70">
             Suggestions are unavailable. Press Enter to search.
           </p>
         )}
-        {!isLoading && !isError && !options.length && (
+        {showSuggestions && !isLoading && !isError && !options.length && (
           <p className="px-3 py-2 text-sm text-text/70">No matches. Press Enter to search anyway.</p>
         )}
       </div>

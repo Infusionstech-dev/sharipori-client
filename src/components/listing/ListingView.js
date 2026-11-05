@@ -31,16 +31,23 @@ function useListingPage(query, initial) {
   return { result: currentData, isLoading: !currentData && !isError, isError, refetch };
 }
 
-function EarlierPage({ query, initial, packages }) {
+function EarlierPage({ query, initial, packages, highlight }) {
   const { result, isLoading } = useListingPage(query, initial);
   return isLoading ? (
     <GridSkeletons packages={packages} />
   ) : (
-    <GridItems products={result?.data ?? []} packages={packages} />
+    <GridItems products={result?.data ?? []} packages={packages} highlight={highlight} />
   );
 }
 
-export default function ListingView({ fixed = {}, initial, subcategories = [], packages = false }) {
+export default function ListingView({
+  fixed = {},
+  initial,
+  subcategories = [],
+  packages = false,
+  highlight,
+  noResults,
+}) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const filters = parseFilters(searchParams, fixed);
@@ -63,7 +70,11 @@ export default function ListingView({ fixed = {}, initial, subcategories = [], p
   // The History API changes the URL without asking the server for the page again.
   // Next keeps useSearchParams in step with it, including the back button.
   const navigate = (next, method = "pushState") => {
-    const search = toSearchString(next);
+    // A search's q is not a filter, but has to stay in the address.
+    const filtersSearch = toSearchString(next);
+    const search = fixed.q
+      ? [new URLSearchParams({ q: fixed.q }).toString(), filtersSearch].filter(Boolean).join("&")
+      : filtersSearch;
     if (search !== searchParams.toString()) {
       window.history[method](null, "", search ? `${pathname}?${search}` : pathname);
     }
@@ -117,13 +128,19 @@ export default function ListingView({ fixed = {}, initial, subcategories = [], p
   } else {
     content = (
       <>
-        <ProductGrid products={products} packages={packages} isLoading={isLoading}>
+        <ProductGrid
+          products={products}
+          packages={packages}
+          isLoading={isLoading}
+          highlight={highlight}
+        >
           {earlierPages.map((page) => (
             <EarlierPage
               key={page}
               query={{ ...query, page }}
               initial={initial}
               packages={packages}
+              highlight={highlight}
             />
           ))}
         </ProductGrid>
@@ -137,6 +154,13 @@ export default function ListingView({ fixed = {}, initial, subcategories = [], p
         )}
       </>
     );
+  }
+
+  // Nothing matches the search itself, so there is nothing to filter either.
+  const nothingFound =
+    result && !products.length && !earlierPages.length && !countActiveFilters(filters);
+  if (nothingFound && noResults) {
+    return noResults;
   }
 
   return (
