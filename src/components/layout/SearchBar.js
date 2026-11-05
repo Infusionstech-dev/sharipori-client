@@ -143,7 +143,7 @@ export default function SearchBar({ autoFocus = false, onNavigate, onEscape }) {
       >
         {products.length > 0 && (
           <div role="group" aria-label="Products">
-            <p className="px-3 py-1 text-xs font-semibold uppercase text-text/60">Products</p>
+            <p className="px-3 py-1 text-xs font-semibold uppercase text-text/70">Products</p>
             {products.map((product, index) => (
               <div key={product.id} {...optionProps(index)}>
                 {product.image ? (
@@ -168,23 +168,23 @@ export default function SearchBar({ autoFocus = false, onNavigate, onEscape }) {
         )}
         {categories.length > 0 && (
           <div role="group" aria-label="Categories">
-            <p className="px-3 py-1 text-xs font-semibold uppercase text-text/60">Categories</p>
+            <p className="px-3 py-1 text-xs font-semibold uppercase text-text/70">Categories</p>
             {categories.map((category, index) => (
               <div key={category.id} {...optionProps(products.length + index)}>
                 <span>{category.nameEn}</span>
-                <span className="font-bangla text-xs text-text/60">{category.nameBn}</span>
+                <span className="font-bangla text-xs text-text/70">{category.nameBn}</span>
               </div>
             ))}
           </div>
         )}
-        {isLoading && <p className="px-3 py-2 text-sm text-text/60">Searching…</p>}
+        {isLoading && <p className="px-3 py-2 text-sm text-text/70">Searching…</p>}
         {!isLoading && isError && (
-          <p className="px-3 py-2 text-sm text-text/60">
+          <p className="px-3 py-2 text-sm text-text/70">
             Suggestions are unavailable. Press Enter to search.
           </p>
         )}
         {!isLoading && !isError && !options.length && (
-          <p className="px-3 py-2 text-sm text-text/60">No matches. Press Enter to search anyway.</p>
+          <p className="px-3 py-2 text-sm text-text/70">No matches. Press Enter to search anyway.</p>
         )}
       </div>
     </div>

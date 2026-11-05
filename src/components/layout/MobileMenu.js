@@ -15,7 +15,7 @@ function Name({ nameEn, nameBn }) {
   return (
     <span>
       <span className="block text-sm font-medium">{nameEn}</span>
-      {nameBn && <span className="block font-bangla text-xs text-text/60">{nameBn}</span>}
+      {nameBn && <span className="block font-bangla text-xs text-text/70">{nameBn}</span>}
     </span>
   );
 }
@@ -60,7 +60,7 @@ export default function MobileMenu({ categories, fabrics }) {
       <Drawer side="left" open={open} onClose={close} title="Menu">
         <nav aria-label="Mobile menu" className="space-y-6">
           <section>
-            <h3 className="mb-1 px-2 text-xs font-semibold uppercase text-text/60">Categories</h3>
+            <h3 className="mb-1 px-2 text-xs font-semibold uppercase text-text/70">Categories</h3>
             {categories.map((category) =>
               category.children.length ? (
                 <Accordion
@@ -91,7 +91,7 @@ export default function MobileMenu({ categories, fabrics }) {
             <section>
               <Accordion
                 summary={
-                  <span className="text-xs font-semibold uppercase text-text/60">
+                  <span className="text-xs font-semibold uppercase text-text/70">
                     Shop by fabric
                   </span>
                 }
@@ -107,7 +107,7 @@ export default function MobileMenu({ categories, fabrics }) {
           )}
 
           <section className="border-t border-soft pt-4">
-            <h3 className="mb-1 px-2 text-xs font-semibold uppercase text-text/60">Account</h3>
+            <h3 className="mb-1 px-2 text-xs font-semibold uppercase text-text/70">Account</h3>
             {navLink("/wishlist", <span className="text-sm font-medium">Wishlist</span>)}
             {status === "authenticated" ? (
               <>

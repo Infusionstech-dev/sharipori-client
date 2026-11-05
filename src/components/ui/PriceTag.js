@@ -2,7 +2,7 @@ import clsx from "clsx";
 import { formatBDT } from "@/lib/format";
 import Badge from "./Badge";
 
-export default function PriceTag({ price, salePrice, className }) {
+export default function PriceTag({ price, salePrice, showBadge = true, className }) {
   const regular = Number(price);
   const sale = Number(salePrice);
   const onSale = salePrice != null && sale >= 0 && sale < regular;
@@ -14,11 +14,13 @@ export default function PriceTag({ price, salePrice, className }) {
       </span>
       {onSale && (
         <>
-          <del className="text-sm text-text/60">
+          <del className="text-sm text-text/70">
             <span className="sr-only">Regular price </span>
             {formatBDT(regular)}
           </del>
-          <Badge variant="accent">{Math.round(((regular - sale) / regular) * 100)}% off</Badge>
+          {showBadge && (
+            <Badge variant="accent">{Math.round(((regular - sale) / regular) * 100)}% off</Badge>
+          )}
         </>
       )}
     </div>

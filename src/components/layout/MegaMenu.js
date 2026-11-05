@@ -15,14 +15,14 @@ const PANEL_LINK_CLASS =
   "block rounded px-2 py-1.5 hover:bg-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary";
 
 function PanelHeading({ children }) {
-  return <p className="mb-2 px-2 text-xs font-semibold uppercase text-text/60">{children}</p>;
+  return <p className="mb-2 px-2 text-xs font-semibold uppercase text-text/70">{children}</p>;
 }
 
 function NameLink({ href, nameEn, nameBn, onClick }) {
   return (
     <Link href={href} onClick={onClick} className={PANEL_LINK_CLASS}>
       <span className="block text-sm font-medium">{nameEn}</span>
-      {nameBn && <span className="block font-bangla text-xs text-text/60">{nameBn}</span>}
+      {nameBn && <span className="block font-bangla text-xs text-text/70">{nameBn}</span>}
     </Link>
   );
 }
@@ -97,7 +97,7 @@ export default function MegaMenu({ categories, fabrics }) {
                   )}
                 >
                   <span className="block text-sm font-medium leading-tight">{category.nameEn}</span>
-                  <span className="block font-bangla text-xs leading-tight text-text/60">
+                  <span className="block font-bangla text-xs leading-tight text-text/70">
                     {category.nameBn}
                   </span>
                 </Link>
