@@ -5,3 +5,10 @@ body {
   background-color: #fffbf5;
   color: #2b2b2b;
 }
+
+/* The product page's sticky bar sits where the chat buttons normally are on phones. */
+@media (max-width: 767px) {
+  body:has([data-sticky-buybar]) [data-floating-chat] {
+    bottom: 8.5rem;
+  }
+}
