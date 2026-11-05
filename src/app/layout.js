@@ -1,6 +1,8 @@
 import { Hind_Siliguri, Inter, Playfair_Display } from "next/font/google";
 import AuthBootstrap from "@/components/auth/AuthBootstrap";
 import AppToaster from "@/components/layout/AppToaster";
+import BottomNav from "@/components/layout/BottomNav";
+import FloatingChat from "@/components/layout/FloatingChat";
 import Footer from "@/components/layout/Footer";
 import Header from "@/components/layout/Header";
 import StoreProvider from "@/store/StoreProvider";
@@ -36,12 +38,14 @@ export default function RootLayout({ children }) {
       lang="en"
       className={`${playfair.variable} ${inter.variable} ${hindSiliguri.variable} h-full antialiased`}
     >
-      <body className="flex min-h-full flex-col bg-bg font-sans text-text">
+      <body className="flex min-h-full flex-col bg-bg pb-14 font-sans text-text md:pb-0">
         <StoreProvider>
           <AuthBootstrap />
           <Header />
           <main className="flex-1">{children}</main>
           <Footer />
+          <FloatingChat />
+          <BottomNav />
           <AppToaster />
         </StoreProvider>
       </body>

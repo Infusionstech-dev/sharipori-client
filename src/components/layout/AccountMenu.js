@@ -2,23 +2,20 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useDispatch, useSelector } from "react-redux";
-import Skeleton from "@/components/ui/Skeleton";
-import { useLogoutMutation } from "@/store/api/authApi";
-import { baseApi } from "@/store/api/baseApi";
-import { logout } from "@/store/slices/authSlice";
+import { useSelector } from "react-redux";
+import { UserIcon } from "./icons";
+import useLogout from "./useLogout";
 
 const ITEM_CLASS =
   "block w-full px-4 py-2 text-left text-sm text-text hover:bg-soft focus-visible:bg-soft focus-visible:outline-none";
+const ICON_BUTTON_CLASS =
+  "flex size-11 items-center justify-center rounded-lg hover:bg-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary";
 
 export default function AccountMenu() {
-  const dispatch = useDispatch();
-  const router = useRouter();
   const { status, user } = useSelector((state) => state.auth);
   const [open, setOpen] = useState(false);
   const menuRef = useRef(null);
-  const [logoutRequest] = useLogoutMutation();
+  const logout = useLogout();
 
   useEffect(() => {
     if (!open) {
@@ -44,23 +41,14 @@ export default function AccountMenu() {
 
   const onLogout = async () => {
     setOpen(false);
-    await logoutRequest();
-    router.push("/");
-    dispatch(logout({ byUser: true }));
-    dispatch(baseApi.util.resetApiState());
+    await logout();
   };
 
-  if (status === "idle" || status === "checking") {
-    return <Skeleton className="h-6 w-16 opacity-40" />;
-  }
-
   if (status !== "authenticated") {
+    // The same icon while the session is checked, so nothing moves when it finishes.
     return (
-      <Link
-        href="/login"
-        className="rounded-lg px-3 py-2 text-sm font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
-      >
-        Login
+      <Link href="/login" aria-label="Login" title="Login" className={ICON_BUTTON_CLASS}>
+        <UserIcon />
       </Link>
     );
   }
@@ -69,15 +57,21 @@ export default function AccountMenu() {
     <div ref={menuRef} className="relative">
       <button
         type="button"
+        aria-label={`Account menu for ${user?.name ?? "your account"}`}
         aria-expanded={open}
         aria-haspopup="true"
         onClick={() => setOpen((value) => !value)}
-        className="min-h-11 rounded-lg px-3 text-sm font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+        className={ICON_BUTTON_CLASS}
       >
-        {user?.name ?? "Account"}
+        <UserIcon />
       </button>
       {open && (
         <div className="absolute right-0 z-20 mt-1 w-44 overflow-hidden rounded-lg bg-white py-1 shadow-lg">
+          {user?.name && (
+            <p className="truncate border-b border-soft px-4 py-2 text-sm font-medium">
+              {user.name}
+            </p>
+          )}
           <Link href="/account" className={ITEM_CLASS} onClick={() => setOpen(false)}>
             My account
           </Link>

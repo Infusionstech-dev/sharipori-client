@@ -1,9 +1,118 @@
+import Link from "next/link";
 import Container from "@/components/ui/Container";
+import { getCategories } from "@/lib/api";
+import { categoryHref, siteConfig } from "@/lib/siteConfig";
 
-export default function Footer() {
+const HELP_LINKS = [
+  ["Track order", "/track-order"],
+  ["Size guide", "/size-guide"],
+  ["Return policy", "/return-policy"],
+  ["FAQ", "/faq"],
+  ["Contact", "/contact"],
+];
+
+const PAYMENT_METHODS = ["COD", "bKash", "Nagad", "Cards"];
+
+const LINK_CLASS =
+  "inline-block py-1 hover:text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary";
+
+function Column({ title, children }) {
   return (
-    <footer className="bg-soft">
-      <Container className="py-6 text-sm">Shari Shop</Container>
+    <div>
+      <h2 className="mb-3 font-display text-lg text-primary">{title}</h2>
+      {children}
+    </div>
+  );
+}
+
+export default async function Footer() {
+  const categories = await getCategories();
+  const { phone, email, address, facebookUrl, instagramUrl } = siteConfig;
+  const hasContact = phone || email || address;
+
+  return (
+    <footer className="bg-soft text-sm">
+      <Container className="grid grid-cols-1 gap-8 py-10 sm:grid-cols-2 lg:grid-cols-4">
+        <Column title="Shari Shop">
+          <p className="text-text/80">Traditional clothing for babies and mothers in Bangladesh.</p>
+          {(facebookUrl || instagramUrl) && (
+            <p className="mt-3 flex gap-4">
+              {facebookUrl && (
+                <a href={facebookUrl} target="_blank" rel="noopener noreferrer" className={LINK_CLASS}>
+                  Facebook
+                </a>
+              )}
+              {instagramUrl && (
+                <a href={instagramUrl} target="_blank" rel="noopener noreferrer" className={LINK_CLASS}>
+                  Instagram
+                </a>
+              )}
+            </p>
+          )}
+        </Column>
+
+        <Column title="Shop">
+          <ul>
+            {categories.map((category) => (
+              <li key={category.id}>
+                <Link href={categoryHref(category.slug)} className={LINK_CLASS}>
+                  {category.nameEn}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </Column>
+
+        <Column title="Help">
+          <ul>
+            {HELP_LINKS.map(([label, href]) => (
+              <li key={href}>
+                <Link href={href} className={LINK_CLASS}>
+                  {label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </Column>
+
+        <Column title="Contact">
+          {hasContact ? (
+            <address className="not-italic">
+              {phone && (
+                <a href={`tel:${phone}`} className={`${LINK_CLASS} block`}>
+                  {phone}
+                </a>
+              )}
+              {email && (
+                <a href={`mailto:${email}`} className={`${LINK_CLASS} block break-all`}>
+                  {email}
+                </a>
+              )}
+              {address && <p className="py-1 text-text/80">{address}</p>}
+            </address>
+          ) : (
+            <Link href="/contact" className={LINK_CLASS}>
+              Contact us
+            </Link>
+          )}
+        </Column>
+      </Container>
+
+      <div className="border-t border-primary/10">
+        <Container className="flex flex-col items-center justify-between gap-3 py-4 sm:flex-row">
+          <ul aria-label="Payment methods" className="flex flex-wrap justify-center gap-2">
+            {PAYMENT_METHODS.map((method) => (
+              <li
+                key={method}
+                className="rounded border border-primary/20 bg-white px-2.5 py-1 text-xs font-semibold"
+              >
+                {method}
+              </li>
+            ))}
+          </ul>
+          <p className="text-xs text-text/70">© {new Date().getFullYear()} Shari Shop</p>
+        </Container>
+      </div>
     </footer>
   );
 }
