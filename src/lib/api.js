@@ -4,21 +4,27 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL;
 const TIMEOUT_MS = 5000;
 const LAYOUT_REVALIDATE_SECONDS = 600;
 
-// Returns null when the API fails, so one bad response never takes the whole page down.
-export async function apiGet(path, { revalidate, tags } = {}) {
+// Returns null when the request itself fails. Other responses keep their status for the caller.
+export async function apiGetResponse(path, { revalidate, tags } = {}) {
   try {
     const response = await fetch(`${API_URL}${path}`, {
       next: { revalidate, tags },
       signal: AbortSignal.timeout(TIMEOUT_MS),
     });
-    if (!response.ok) {
-      return null;
-    }
     const body = await response.json();
-    return body.data ?? null;
+    return {
+      status: response.status,
+      data: response.ok ? (body.data ?? null) : null,
+      meta: body.meta ?? null,
+    };
   } catch {
     return null;
   }
+}
+
+// Null on any failure, so one bad response never takes the whole page down.
+export async function apiGet(path, options) {
+  return (await apiGetResponse(path, options))?.data ?? null;
 }
 
 // cache() because fetch skips its own request sharing when it is given a signal.
