@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Highlight from "@/components/listing/Highlight";
 import Badge from "@/components/ui/Badge";
 import PriceTag from "@/components/ui/PriceTag";
 import RemoteImage from "@/components/ui/RemoteImage";
@@ -7,7 +8,7 @@ import AddToCartButton from "./AddToCartButton";
 const IMAGE_SIZES = "(min-width: 1024px) 25vw, (min-width: 768px) 33vw, 50vw";
 const MAX_COLORS = 5;
 
-export default function ProductCard({ product }) {
+export default function ProductCard({ product, highlight }) {
   const { nameEn, nameBn, slug, image, hoverImage, fabric, price, salePrice } = product;
   const { discountPercent, inStock, colors, isNew } = product;
 
@@ -45,10 +46,14 @@ export default function ProductCard({ product }) {
             href={`/product/${slug}`}
             className="after:absolute after:inset-0 after:rounded-lg focus-visible:outline-none focus-visible:after:ring-2 focus-visible:after:ring-primary"
           >
-            {nameEn}
+            <Highlight text={nameEn} query={highlight} />
           </Link>
         </h3>
-        {nameBn && <p className="truncate font-bangla text-xs text-text/70">{nameBn}</p>}
+        {nameBn && (
+          <p className="truncate font-bangla text-xs text-text/70">
+            <Highlight text={nameBn} query={highlight} />
+          </p>
+        )}
         <div className="mt-1 flex-1">
           <PriceTag price={price} salePrice={salePrice} showBadge={false} />
         </div>
