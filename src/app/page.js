@@ -1,152 +1,91 @@
-"use client";
+import CategoryCards from "@/components/home/CategoryCards";
+import FabricChips from "@/components/home/FabricChips";
+import HeroSlider from "@/components/home/HeroSlider";
+import MatchingBanner from "@/components/home/MatchingBanner";
+import PackagesSection from "@/components/home/PackagesSection";
+import ProductSection from "@/components/home/ProductSection";
+import TrustStrip from "@/components/home/TrustStrip";
+import { apiGet, getCategories, getFabrics } from "@/lib/api";
+import { categoryHref } from "@/lib/siteConfig";
 
-import { useState } from "react";
-import toast from "react-hot-toast";
-import Badge from "@/components/ui/Badge";
-import Button from "@/components/ui/Button";
-import Checkbox from "@/components/ui/Checkbox";
-import Container from "@/components/ui/Container";
-import Drawer from "@/components/ui/Drawer";
-import EmptyState from "@/components/ui/EmptyState";
-import Input from "@/components/ui/Input";
-import Modal from "@/components/ui/Modal";
-import PriceTag from "@/components/ui/PriceTag";
-import Radio from "@/components/ui/Radio";
-import Select from "@/components/ui/Select";
-import Skeleton from "@/components/ui/Skeleton";
-import Spinner from "@/components/ui/Spinner";
-import Textarea from "@/components/ui/Textarea";
-import { formatBDT, formatDate } from "@/lib/format";
+export const revalidate = 300;
 
-const COLORS = [
-  ["primary", "bg-primary"],
-  ["accent", "bg-accent"],
-  ["soft", "bg-soft"],
-  ["bg", "bg-bg"],
-  ["text", "bg-text"],
+// TODO(T8.2): replace with the banners API. Images come from featured products until then.
+const FALLBACK_BANNERS = [
+  {
+    title: "Traditional clothing for mother and baby",
+    subtitle: "Handpicked sarees and ready shari for every celebration.",
+    cta: "Shop mother's sarees",
+    href: categoryHref("mothers-saree"),
+  },
+  {
+    title: "Baby ready shari",
+    subtitle: "Easy to dress, made for little ones.",
+    cta: "Shop baby shari",
+    href: categoryHref("baby-ready-shari"),
+  },
+  {
+    title: "Combos that save more",
+    subtitle: "Sonamoni Combo and Maharani Package sets.",
+    cta: "See packages",
+    href: categoryHref("combo-packages"),
+  },
 ];
 
-function Section({ title, children }) {
+const getProducts = async (params) =>
+  (await apiGet(`/products?${new URLSearchParams(params)}`, {
+    revalidate,
+    tags: ["products"],
+  })) ?? [];
+
+export default async function HomePage() {
+  const [
+    categories,
+    fabrics,
+    featured,
+    newest,
+    popular,
+    sonamoni,
+    maharani,
+    motherProducts,
+    babyProducts,
+  ] = await Promise.all([
+    getCategories(),
+    getFabrics(),
+    getProducts({ featured: true, limit: FALLBACK_BANNERS.length }),
+    getProducts({ type: "single", sort: "newest", limit: 8 }),
+    getProducts({ type: "single", sort: "popular", limit: 8 }),
+    getProducts({ type: "bundle", category: "sonamoni-combo", sort: "popular", limit: 1 }),
+    getProducts({ type: "bundle", category: "maharani-package", sort: "popular", limit: 1 }),
+    getProducts({ category: "mothers-saree", type: "single", sort: "popular", limit: 1 }),
+    getProducts({ category: "baby-ready-shari", type: "single", sort: "popular", limit: 1 }),
+  ]);
+
+  const slides = FALLBACK_BANNERS.map((banner, index) => ({
+    ...banner,
+    image: featured[index]?.image ?? null,
+  }));
+
   return (
-    <section className="space-y-4 border-t border-soft py-8">
-      <h2 className="font-display text-2xl text-primary">{title}</h2>
-      {children}
-    </section>
-  );
-}
-
-export default function StyleGuidePage() {
-  const [modalOpen, setModalOpen] = useState(false);
-  const [drawerOpen, setDrawerOpen] = useState(false);
-
-  return (
-    <Container className="py-8">
-      <h1 className="pb-8 font-display text-4xl text-primary">Style guide</h1>
-
-      <Section title="Colors">
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-5">
-          {COLORS.map(([name, className]) => (
-            <div key={name}>
-              <div className={`h-16 rounded-lg border border-soft ${className}`} />
-              <p className="mt-1 text-sm">{name}</p>
-            </div>
-          ))}
-        </div>
-      </Section>
-
-      <Section title="Typography">
-        <p className="font-display text-3xl">Playfair Display: Mother&apos;s Saree</p>
-        <p className="text-lg">Inter: Handwoven Katan and Jamdani</p>
-        <p className="font-bangla text-lg">Hind Siliguri: বেবি রেডি শাড়ি ও মায়ের শাড়ি</p>
-      </Section>
-
-      <Section title="Buttons">
-        <div className="flex flex-wrap items-center gap-3">
-          <Button>Primary</Button>
-          <Button variant="outline">Outline</Button>
-          <Button variant="ghost">Ghost</Button>
-          <Button size="sm">Small</Button>
-          <Button size="lg">Large</Button>
-          <Button loading>Loading</Button>
-          <Button disabled>Disabled</Button>
-          <Button variant="outline" onClick={() => toast.success("Added to cart")}>
-            Show toast
-          </Button>
-        </div>
-      </Section>
-
-      <Section title="Form fields">
-        <div className="grid gap-4 sm:grid-cols-2">
-          <Input label="Full name" placeholder="Your name" hint="As written on your ID" />
-          <Input label="Phone" defaultValue="123" error="Enter a valid 01XXXXXXXXX number" />
-          <Select
-            label="Fabric"
-            placeholder="Choose a fabric"
-            defaultValue=""
-            options={[
-              { value: "katan", label: "Katan" },
-              { value: "jamdani", label: "Jamdani" },
-            ]}
-          />
-          <Textarea label="Delivery note" placeholder="Anything we should know?" />
-        </div>
-        <div className="flex flex-wrap gap-6">
-          <Checkbox label="Gift wrap" />
-          <Radio name="delivery" label="Inside Dhaka" defaultChecked />
-          <Radio name="delivery" label="Outside Dhaka" />
-        </div>
-      </Section>
-
-      <Section title="Badges">
-        <div className="flex flex-wrap gap-2">
-          <Badge>Soft</Badge>
-          <Badge variant="primary">New</Badge>
-          <Badge variant="accent">Best seller</Badge>
-          <Badge variant="neutral">Sold out</Badge>
-        </div>
-      </Section>
-
-      <Section title="Prices and dates">
-        <PriceTag price={4500} salePrice={3600} />
-        <PriceTag price={4500} />
-        <p className="text-sm">
-          {formatBDT(125000)} on {formatDate("2026-11-04T00:00:00+06:00")}
-        </p>
-      </Section>
-
-      <Section title="Loading">
-        <div className="flex items-center gap-4">
-          <Spinner />
-          <Skeleton className="h-24 w-24" />
-          <div className="flex-1 space-y-2">
-            <Skeleton className="h-4 w-3/4" />
-            <Skeleton className="h-4 w-1/2" />
-          </div>
-        </div>
-      </Section>
-
-      <Section title="Empty state">
-        <EmptyState
-          title="Your cart is empty"
-          description="Saved items will show up here."
-          action={<Button variant="outline">Browse sarees</Button>}
-        />
-      </Section>
-
-      <Section title="Modal and drawer">
-        <div className="flex flex-wrap gap-3">
-          <Button onClick={() => setModalOpen(true)}>Open modal</Button>
-          <Button variant="outline" onClick={() => setDrawerOpen(true)}>
-            Open drawer
-          </Button>
-        </div>
-        <Modal open={modalOpen} onClose={() => setModalOpen(false)} title="Size guide">
-          <p>Press Escape, click outside or use the close button.</p>
-        </Modal>
-        <Drawer open={drawerOpen} onClose={() => setDrawerOpen(false)} title="Your cart">
-          <p>Drawer content goes here.</p>
-        </Drawer>
-      </Section>
-    </Container>
+    <>
+      <HeroSlider slides={slides} />
+      <CategoryCards categories={categories} />
+      <MatchingBanner motherImage={motherProducts[0]?.image} babyImage={babyProducts[0]?.image} />
+      <PackagesSection
+        packages={[
+          { label: "Sonamoni Combo", product: sonamoni[0] },
+          { label: "Maharani Package", product: maharani[0] },
+        ]}
+      />
+      <FabricChips fabrics={fabrics} />
+      <ProductSection title="New arrivals" viewAllHref="/products?sort=newest" products={newest} />
+      <ProductSection
+        title="Best sellers"
+        viewAllHref="/products?sort=popular"
+        products={popular}
+        carousel
+      />
+      <TrustStrip />
+    </>
   );
 }
