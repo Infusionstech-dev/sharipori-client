@@ -1,20 +1,26 @@
-import { siteConfig } from "@/lib/siteConfig";
+import { getSettings } from "@/lib/api";
+import { formatBDT } from "@/lib/format";
 
-const FREE_DELIVERY_TEXT = "Free delivery over ৳3000";
-
-function announcementText() {
-  if (siteConfig.announcement) {
-    return siteConfig.announcement;
+// The owner's own text when set; otherwise built from the free delivery limit and hotline.
+function announcementText(settings) {
+  if (settings.announcementText) {
+    return settings.announcementText;
   }
-  return siteConfig.phone
-    ? `${FREE_DELIVERY_TEXT} | Hotline ${siteConfig.phone}`
-    : FREE_DELIVERY_TEXT;
+  const parts = [
+    settings.freeDeliveryThreshold
+      ? `Free delivery over ${formatBDT(settings.freeDeliveryThreshold)}`
+      : null,
+    settings.phone ? `Hotline ${settings.phone}` : null,
+  ].filter(Boolean);
+  return parts.join(" | ");
 }
 
-export default function AnnouncementBar() {
+export default async function AnnouncementBar() {
+  const text = announcementText(await getSettings());
+  if (!text) {
+    return null;
+  }
   return (
-    <p className="h-8 truncate bg-primary px-4 text-center text-xs leading-8 text-white">
-      {announcementText()}
-    </p>
+    <p className="h-8 truncate bg-primary px-4 text-center text-xs leading-8 text-white">{text}</p>
   );
 }

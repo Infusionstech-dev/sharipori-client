@@ -3,14 +3,14 @@
 import { useId, useRef, useState } from "react";
 import Link from "next/link";
 import clsx from "clsx";
-import { fabricHref } from "@/lib/siteConfig";
+import { fabricHref, pageHref } from "@/lib/siteConfig";
 
 const TABS = ["Description", "Fabric & care", "Delivery & exchange", "Reviews"];
 
 const HTML_CLASS =
   "text-sm leading-relaxed [&_a]:text-primary [&_a]:underline [&_h2]:mb-2 [&_h2]:text-lg [&_h2]:font-semibold [&_h3]:mb-2 [&_h3]:font-semibold [&_li]:mb-1 [&_ol]:mb-3 [&_ol]:list-decimal [&_ol]:pl-5 [&_p]:mb-3 [&_ul]:mb-3 [&_ul]:list-disc [&_ul]:pl-5";
 
-export default function ProductTabs({ product }) {
+export default function ProductTabs({ product, deliveryInfoText, returnPolicyText }) {
   const baseId = useId();
   const [active, setActive] = useState(0);
   const listRef = useRef(null);
@@ -45,10 +45,14 @@ export default function ProductTabs({ product }) {
       <p>{careInfo ?? "Care details coming soon."}</p>
     </div>,
     <div key="delivery" className="space-y-2 text-sm">
-      <p>Delivery is available across Bangladesh. The charge and time are shown at checkout.</p>
+      <p className="whitespace-pre-line">
+        {deliveryInfoText ||
+          "Delivery is available across Bangladesh. The charge and time are shown at checkout."}
+      </p>
+      {returnPolicyText && <p className="whitespace-pre-line">{returnPolicyText}</p>}
       <p>
         Please read our{" "}
-        <Link href="/return-policy" className="text-primary underline">
+        <Link href={pageHref("return-policy")} className="text-primary underline">
           return policy
         </Link>{" "}
         before ordering.

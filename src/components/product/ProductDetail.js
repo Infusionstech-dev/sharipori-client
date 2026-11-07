@@ -11,11 +11,14 @@ const defaultVariantId = (variants, requestedId) => {
   return (usable.find((variant) => variant.id === requestedId) ?? usable[0])?.id ?? null;
 };
 
-export default function ProductDetail({ product, requestedVariantId, packageItems }) {
+export default function ProductDetail({
+  product,
+  requestedVariantId,
+  packageItems,
+  whatsappNumber,
+}) {
   const { variants } = product;
-  const [variantId, setVariantId] = useState(() =>
-    defaultVariantId(variants, requestedVariantId)
-  );
+  const [variantId, setVariantId] = useState(() => defaultVariantId(variants, requestedVariantId));
   // A package's size choice is not a variant: it travels with the order instead.
   const [packageSize, setPackageSize] = useState(null);
   const variant = variants.find((item) => item.id === variantId) ?? null;
@@ -62,6 +65,7 @@ export default function ProductDetail({ product, requestedVariantId, packageItem
           variant={needsPackageSize ? null : variant}
           displayVariant={variant}
           packageSize={packageSize}
+          whatsappNumber={whatsappNumber}
         />
       </div>
     </div>

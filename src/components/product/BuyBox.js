@@ -5,13 +5,12 @@ import { useRouter } from "next/navigation";
 import { MessageCircle } from "lucide-react";
 import Button from "@/components/ui/Button";
 import { formatBDT } from "@/lib/format";
-import { siteConfig } from "@/lib/siteConfig";
 import QuantityStepper from "./QuantityStepper";
 import useAddToCart from "./useAddToCart";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "";
 
-const whatsappHref = (product, variant, packageSize, quantity) => {
+const whatsappHref = (whatsappNumber, product, variant, packageSize, quantity) => {
   const details = [variant.color?.name, variant.size?.label, packageSize?.label]
     .filter(Boolean)
     .join(" / ");
@@ -23,11 +22,11 @@ const whatsappHref = (product, variant, packageSize, quantity) => {
   ]
     .filter(Boolean)
     .join("\n");
-  return `https://wa.me/${siteConfig.whatsappNumber}?text=${encodeURIComponent(message)}`;
+  return `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
 };
 
 // variant is null until a valid choice is made. displayVariant still prices the sticky bar.
-export default function BuyBox({ product, variant, displayVariant, packageSize }) {
+export default function BuyBox({ product, variant, displayVariant, packageSize, whatsappNumber }) {
   const router = useRouter();
   const { addToCart, adding } = useAddToCart();
   const [quantity, setQuantity] = useState(1);
@@ -61,10 +60,10 @@ export default function BuyBox({ product, variant, displayVariant, packageSize }
           Buy now
         </Button>
       </div>
-      {siteConfig.whatsappNumber &&
+      {whatsappNumber &&
         (variant ? (
           <a
-            href={whatsappHref(product, variant, packageSize, shownQuantity)}
+            href={whatsappHref(whatsappNumber, product, variant, packageSize, shownQuantity)}
             target="_blank"
             rel="noopener noreferrer"
             className="flex min-h-12 items-center justify-center gap-2 rounded-lg border border-text/25 text-sm font-medium hover:bg-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"

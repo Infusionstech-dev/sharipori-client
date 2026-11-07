@@ -2,15 +2,16 @@ import CategoryCards from "@/components/home/CategoryCards";
 import FabricChips from "@/components/home/FabricChips";
 import HeroSlider from "@/components/home/HeroSlider";
 import MatchingBanner from "@/components/home/MatchingBanner";
+import PromoBanner from "@/components/home/PromoBanner";
 import PackagesSection from "@/components/home/PackagesSection";
 import ProductSection from "@/components/home/ProductSection";
 import TrustStrip from "@/components/home/TrustStrip";
-import { apiGet, getCategories, getFabrics } from "@/lib/api";
+import { apiGet, getBanners, getCategories, getFabrics } from "@/lib/api";
 import { categoryHref } from "@/lib/siteConfig";
 
 export const revalidate = 300;
 
-// TODO(T8.2): replace with the banners API. Images come from featured products until then.
+// Shown only while no hero banners are set up in admin. Images come from featured products.
 const FALLBACK_BANNERS = [
   {
     title: "Traditional clothing for mother and baby",
@@ -49,6 +50,8 @@ export default async function HomePage() {
     maharani,
     motherProducts,
     babyProducts,
+    heroBanners,
+    middleBanners,
   ] = await Promise.all([
     getCategories(),
     getFabrics(),
@@ -59,18 +62,34 @@ export default async function HomePage() {
     getProducts({ type: "bundle", category: "maharani-package", sort: "popular", limit: 1 }),
     getProducts({ category: "mothers-saree", type: "single", sort: "popular", limit: 1 }),
     getProducts({ category: "baby-ready-shari", type: "single", sort: "popular", limit: 1 }),
+    getBanners("home_hero"),
+    getBanners("home_middle"),
   ]);
 
-  const slides = FALLBACK_BANNERS.map((banner, index) => ({
-    ...banner,
-    image: featured[index]?.image ?? null,
-  }));
+  const slides = heroBanners.length
+    ? heroBanners.map((banner) => ({
+        key: banner.id,
+        title: banner.title,
+        subtitle: banner.subtitle,
+        cta: banner.buttonText,
+        href: banner.link,
+        image: banner.imageUrl,
+        mobileImage: banner.mobileImageUrl,
+      }))
+    : FALLBACK_BANNERS.map((banner, index) => ({
+        ...banner,
+        image: featured[index]?.image ?? null,
+      }));
 
   return (
     <>
       <HeroSlider slides={slides} />
       <CategoryCards categories={categories} />
-      <MatchingBanner motherImage={motherProducts[0]?.image} babyImage={babyProducts[0]?.image} />
+      {middleBanners.length ? (
+        <PromoBanner banner={middleBanners[0]} />
+      ) : (
+        <MatchingBanner motherImage={motherProducts[0]?.image} babyImage={babyProducts[0]?.image} />
+      )}
       <PackagesSection
         packages={[
           { label: "Sonamoni Combo", product: sonamoni[0] },

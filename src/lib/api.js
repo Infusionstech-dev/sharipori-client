@@ -28,6 +28,28 @@ export async function apiGet(path, options) {
 }
 
 // cache() because fetch skips its own request sharing when it is given a signal.
+// Admin saves call /api/revalidate with these tags, so changes show without waiting.
+const DEFAULT_SETTINGS = {
+  shopName: "Shari Shop",
+  freeDeliveryThreshold: null,
+  enabledPaymentMethods: ["cod"],
+};
+
+export const getSettings = cache(
+  async () =>
+    (await apiGet("/settings/public", {
+      revalidate: LAYOUT_REVALIDATE_SECONDS,
+      tags: ["settings"],
+    })) ?? DEFAULT_SETTINGS
+);
+
+export const getBanners = cache(
+  async (position) =>
+    (await apiGet(`/banners?position=${position}`, {
+      revalidate: 60,
+      tags: ["banners"],
+    })) ?? []
+);
 export const getCategories = cache(
   async () =>
     (await apiGet("/categories", {
