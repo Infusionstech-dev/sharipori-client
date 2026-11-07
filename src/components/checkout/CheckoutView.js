@@ -92,6 +92,7 @@ export default function CheckoutView() {
     control,
     register,
     handleSubmit,
+    getValues,
     setValue,
     formState: { errors },
   } = useForm({
@@ -109,6 +110,23 @@ export default function CheckoutView() {
       saveAddress: true,
     },
   });
+  // The session may finish loading after the form was set up. Fill in what the customer
+  // has not typed yet, and never overwrite what they have.
+  useEffect(() => {
+    if (!user) {
+      return;
+    }
+    [
+      ["customerName", user.name],
+      ["phone", user.phone],
+      ["email", user.email],
+    ].forEach(([field, value]) => {
+      if (value && !getValues(field)) {
+        setValue(field, value);
+      }
+    });
+  }, [user, getValues, setValue]);
+
   const [district, deliveryZoneId, paymentMethod] = useWatch({
     control,
     name: ["district", "deliveryZoneId", "paymentMethod"],
@@ -119,11 +137,13 @@ export default function CheckoutView() {
     .filter((line) => line.status !== "out_of_stock" && line.status !== "unavailable")
     .map(({ variantId, quantity }) => ({ variantId, quantity }));
   const quoteArgs = useDebounced(
-    JSON.stringify({ items, deliveryZoneId: deliveryZoneId ?? 0, couponCode: coupon }),
+    JSON.stringify({ items, deliveryZoneId: deliveryZoneId || undefined, couponCode: coupon }),
     QUOTE_DELAY_MS
   );
-  const quoteQuery = useGetQuoteQuery(JSON.parse(quoteArgs), {
-    skip: cart.isLoading || !items.length,
+  // Skip on the delayed arguments themselves: the live list can be ahead of what is sent.
+  const quoteBody = JSON.parse(quoteArgs);
+  const quoteQuery = useGetQuoteQuery(quoteBody, {
+    skip: cart.isLoading || !quoteBody.items.length,
   });
   const quote = quoteQuery.data;
   const couponError = quote?.errors.find((error) => error.field === "couponCode")?.message;
