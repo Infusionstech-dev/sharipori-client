@@ -2,13 +2,13 @@
 
 import Link from "next/link";
 import clsx from "clsx";
-import { useSelector } from "react-redux";
+import useCart from "@/hooks/useCart";
 import { CartIcon } from "./icons";
 
 const MAX_SHOWN = 99;
 
 export default function CartLink({ className, iconClassName, children }) {
-  const count = useSelector((state) => state.cart.itemCount);
+  const { count } = useCart();
 
   return (
     <Link
