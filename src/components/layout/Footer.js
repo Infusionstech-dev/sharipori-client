@@ -1,14 +1,17 @@
 import Link from "next/link";
 import Container from "@/components/ui/Container";
-import { getCategories } from "@/lib/api";
-import { categoryHref, siteConfig } from "@/lib/siteConfig";
+import { getCategories, getSettings } from "@/lib/api";
+import { categoryHref, pageHref } from "@/lib/siteConfig";
 
 const HELP_LINKS = [
   ["Track order", "/track-order"],
-  ["Size guide", "/size-guide"],
-  ["Return policy", "/return-policy"],
-  ["FAQ", "/faq"],
-  ["Contact", "/contact"],
+  ["Size guide", pageHref("size-guide")],
+  ["Return policy", pageHref("return-policy")],
+  ["FAQ", pageHref("faq")],
+  ["Contact", pageHref("contact")],
+  ["About us", pageHref("about")],
+  ["Privacy policy", pageHref("privacy-policy")],
+  ["Terms", pageHref("terms")],
 ];
 
 const PAYMENT_METHODS = ["COD", "bKash", "Nagad", "Cards"];
@@ -26,25 +29,46 @@ function Column({ title, children }) {
 }
 
 export default async function Footer() {
-  const categories = await getCategories();
-  const { phone, email, address, facebookUrl, instagramUrl } = siteConfig;
+  const [categories, settings] = await Promise.all([getCategories(), getSettings()]);
+  const { shopName, phone, email, address, facebookUrl, instagramUrl, youtubeUrl } = settings;
   const hasContact = phone || email || address;
 
   return (
     <footer className="bg-soft text-sm">
       <Container className="grid grid-cols-1 gap-8 py-10 sm:grid-cols-2 lg:grid-cols-4">
-        <Column title="Shari Shop">
+        <Column title={shopName}>
           <p className="text-text/80">Traditional clothing for babies and mothers in Bangladesh.</p>
-          {(facebookUrl || instagramUrl) && (
+          {(facebookUrl || instagramUrl || youtubeUrl) && (
             <p className="mt-3 flex gap-4">
               {facebookUrl && (
-                <a href={facebookUrl} target="_blank" rel="noopener noreferrer" className={LINK_CLASS}>
+                <a
+                  href={facebookUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={LINK_CLASS}
+                >
                   Facebook
                 </a>
               )}
               {instagramUrl && (
-                <a href={instagramUrl} target="_blank" rel="noopener noreferrer" className={LINK_CLASS}>
+                <a
+                  href={instagramUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={LINK_CLASS}
+                >
                   Instagram
+                </a>
+              )}
+
+              {youtubeUrl && (
+                <a
+                  href={youtubeUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={LINK_CLASS}
+                >
+                  YouTube
                 </a>
               )}
             </p>
@@ -91,7 +115,7 @@ export default async function Footer() {
               {address && <p className="py-1 text-text/80">{address}</p>}
             </address>
           ) : (
-            <Link href="/contact" className={LINK_CLASS}>
+            <Link href={pageHref("contact")} className={LINK_CLASS}>
               Contact us
             </Link>
           )}
@@ -110,7 +134,9 @@ export default async function Footer() {
               </li>
             ))}
           </ul>
-          <p className="text-xs text-text/70">© {new Date().getFullYear()} Shari Shop</p>
+          <p className="text-xs text-text/70">
+            © {new Date().getFullYear()} {shopName}
+          </p>
         </Container>
       </div>
     </footer>

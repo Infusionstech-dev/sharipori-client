@@ -1,4 +1,4 @@
-import { siteConfig } from "@/lib/siteConfig";
+import { getSettings } from "@/lib/api";
 import { ChatIcon } from "./icons";
 
 const BUTTON_CLASS =
@@ -25,14 +25,17 @@ function ChatLink({ href, label, letter, className }) {
   );
 }
 
-export default function FloatingChat() {
-  const { whatsappNumber, messengerUrl } = siteConfig;
+export default async function FloatingChat() {
+  const { whatsappNumber, messengerUrl } = await getSettings();
   if (!whatsappNumber && !messengerUrl) {
     return null;
   }
 
   return (
-    <div data-floating-chat className="fixed bottom-18 right-4 z-20 flex flex-col gap-2 md:bottom-6">
+    <div
+      data-floating-chat
+      className="fixed bottom-18 right-4 z-20 flex flex-col gap-2 md:bottom-6"
+    >
       {whatsappNumber && (
         <ChatLink
           href={`https://wa.me/${whatsappNumber}`}

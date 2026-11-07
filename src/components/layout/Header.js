@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Container from "@/components/ui/Container";
-import { getCategories, getFabrics } from "@/lib/api";
+import { getCategories, getFabrics, getSettings } from "@/lib/api";
 import AccountMenu from "./AccountMenu";
 import AnnouncementBar from "./AnnouncementBar";
 import CartLink from "./CartLink";
@@ -15,7 +15,11 @@ const ICON_LINK_CLASS =
   "flex size-11 shrink-0 items-center justify-center rounded-lg hover:bg-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary";
 
 export default async function Header() {
-  const [categories, fabrics] = await Promise.all([getCategories(), getFabrics()]);
+  const [categories, fabrics, settings] = await Promise.all([
+    getCategories(),
+    getFabrics(),
+    getSettings(),
+  ]);
 
   return (
     <>
@@ -27,7 +31,12 @@ export default async function Header() {
             href="/"
             className="shrink-0 rounded font-display text-xl font-semibold text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary md:text-2xl"
           >
-            Shari Shop
+            {settings.logoUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element -- any host the owner pastes; small and fixed height
+              <img src={settings.logoUrl} alt={settings.shopName} className="h-9 w-auto md:h-10" />
+            ) : (
+              settings.shopName
+            )}
           </Link>
           <div className="mx-auto hidden w-full max-w-xl md:block">
             <SearchBar />
@@ -36,7 +45,11 @@ export default async function Header() {
             <div className="md:hidden">
               <MobileSearch />
             </div>
-            <Link href="/wishlist" aria-label="Wishlist" className={`${ICON_LINK_CLASS} hidden md:flex`}>
+            <Link
+              href="/wishlist"
+              aria-label="Wishlist"
+              className={`${ICON_LINK_CLASS} hidden md:flex`}
+            >
               <HeartIcon />
             </Link>
             <CartLink className={ICON_LINK_CLASS} />

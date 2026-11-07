@@ -55,7 +55,7 @@ export default function HeroSlider({ slides }) {
         <div className="flex">
           {slides.map((slide, index) => (
             <div
-              key={slide.title}
+              key={slide.key ?? slide.title}
               role="group"
               aria-roledescription="slide"
               aria-label={`${index + 1} of ${slides.length}`}
@@ -63,13 +63,17 @@ export default function HeroSlider({ slides }) {
             >
               <div className="flex flex-col items-start justify-center gap-3 px-4 sm:px-8 lg:px-16">
                 <h2 className="font-display text-2xl md:text-5xl">{slide.title}</h2>
-                <p className="text-sm text-white/90 md:text-lg">{slide.subtitle}</p>
-                <Link
-                  href={slide.href}
-                  className="mt-2 flex min-h-11 items-center rounded-lg bg-accent px-5 text-sm font-semibold text-text hover:bg-accent/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
-                >
-                  {slide.cta}
-                </Link>
+                {slide.subtitle && (
+                  <p className="text-sm text-white/90 md:text-lg">{slide.subtitle}</p>
+                )}
+                {slide.href && slide.cta && (
+                  <Link
+                    href={slide.href}
+                    className="mt-2 flex min-h-11 items-center rounded-lg bg-accent px-5 text-sm font-semibold text-text hover:bg-accent/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+                  >
+                    {slide.cta}
+                  </Link>
+                )}
               </div>
               <div className="relative bg-white/10">
                 {slide.image && (
@@ -78,7 +82,17 @@ export default function HeroSlider({ slides }) {
                     fill
                     priority={index === 0}
                     sizes="(min-width: 768px) 50vw, 40vw"
-                    className="object-cover"
+                    className={slide.mobileImage ? "hidden object-cover md:block" : "object-cover"}
+                  />
+                )}
+                {/* A phone-shaped image, when the banner has one. display:none skips the other download. */}
+                {slide.mobileImage && (
+                  <RemoteImage
+                    src={slide.mobileImage}
+                    fill
+                    priority={index === 0}
+                    sizes="40vw"
+                    className="object-cover md:hidden"
                   />
                 )}
               </div>
@@ -111,7 +125,10 @@ export default function HeroSlider({ slides }) {
               className="flex size-8 items-center justify-center rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
             >
               <span
-                className={clsx("size-2.5 rounded-full", index === selected ? "bg-accent" : "bg-white/50")}
+                className={clsx(
+                  "size-2.5 rounded-full",
+                  index === selected ? "bg-accent" : "bg-white/50"
+                )}
               />
             </button>
           ))}

@@ -6,7 +6,7 @@ import ProductRow from "@/components/product/ProductRow";
 import ProductTabs from "@/components/product/ProductTabs";
 import Breadcrumb from "@/components/ui/Breadcrumb";
 import Container from "@/components/ui/Container";
-import { apiGet, apiGetResponse } from "@/lib/api";
+import { apiGet, apiGetResponse, getSettings } from "@/lib/api";
 import { buildProductJsonLd } from "@/lib/productJsonLd";
 import { categoryHref } from "@/lib/siteConfig";
 
@@ -46,10 +46,11 @@ export async function generateMetadata({ params }) {
 export default async function ProductPage({ params, searchParams }) {
   const { slug } = await params;
   const { v } = await searchParams;
-  const [product, matches, related] = await Promise.all([
+  const [product, matches, related, settings] = await Promise.all([
     getProduct(slug),
     apiGet(`/products/${encodeURIComponent(slug)}/match`, fetchOptions),
     apiGet(`/products/${encodeURIComponent(slug)}/related`, fetchOptions),
+    getSettings(),
   ]);
 
   const isForMother = product.breadcrumb.some((crumb) => MOTHER_SLUGS.includes(crumb.slug));
@@ -75,9 +76,14 @@ export default async function ProductPage({ params, searchParams }) {
       <ProductDetail
         product={product}
         requestedVariantId={Number(v)}
+        whatsappNumber={settings.whatsappNumber}
         packageItems={product.type === "bundle" ? <PackageItems product={product} /> : null}
       />
-      <ProductTabs product={product} />
+      <ProductTabs
+        product={product}
+        deliveryInfoText={settings.deliveryInfoText}
+        returnPolicyText={settings.returnPolicyText}
+      />
       <ProductRow
         title={isForMother ? "Match with Baby" : "Match with Mom"}
         products={matches ?? []}
