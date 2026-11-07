@@ -74,7 +74,7 @@ export default function ProductCard({ product, highlight }) {
             )}
           </ul>
         )}
-        <AddToCartButton name={nameEn} disabled={!inStock} />
+        <AddToCartButton name={nameEn} slug={slug} disabled={!inStock} />
       </div>
     </article>
   );

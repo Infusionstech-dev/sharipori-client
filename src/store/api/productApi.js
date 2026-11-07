@@ -7,7 +7,12 @@ const productApi = baseApi.injectEndpoints({
       transformResponse: (response) => ({ data: response.data, meta: response.meta }),
       providesTags: ["Product"],
     }),
+    getProduct: build.query({
+      query: (slug) => `/products/${slug}`,
+      transformResponse: (response) => response.data,
+      providesTags: ["Product"],
+    }),
   }),
 });
 
-export const { useGetProductsQuery } = productApi;
+export const { useGetProductsQuery, useLazyGetProductQuery } = productApi;

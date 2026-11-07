@@ -1,5 +1,7 @@
 import { Hind_Siliguri, Inter, Playfair_Display } from "next/font/google";
 import AuthBootstrap from "@/components/auth/AuthBootstrap";
+import CartDrawer from "@/components/cart/CartDrawer";
+import CartSync from "@/components/cart/CartSync";
 import AppToaster from "@/components/layout/AppToaster";
 import BottomNav from "@/components/layout/BottomNav";
 import FloatingChat from "@/components/layout/FloatingChat";
@@ -41,11 +43,13 @@ export default function RootLayout({ children }) {
       <body className="flex min-h-full flex-col bg-bg pb-14 font-sans text-text md:pb-0">
         <StoreProvider>
           <AuthBootstrap />
+          <CartSync />
           <Header />
           <main className="flex-1">{children}</main>
           <Footer />
           <FloatingChat />
           <BottomNav />
+          <CartDrawer />
           <AppToaster />
         </StoreProvider>
       </body>

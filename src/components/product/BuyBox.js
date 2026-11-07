@@ -1,14 +1,13 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { MessageCircle } from "lucide-react";
-import toast from "react-hot-toast";
-import { useDispatch } from "react-redux";
 import Button from "@/components/ui/Button";
 import { formatBDT } from "@/lib/format";
 import { siteConfig } from "@/lib/siteConfig";
-import { addToCartRequested } from "@/store/slices/cartSlice";
 import QuantityStepper from "./QuantityStepper";
+import useAddToCart from "./useAddToCart";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "";
 
@@ -29,7 +28,8 @@ const whatsappHref = (product, variant, packageSize, quantity) => {
 
 // variant is null until a valid choice is made. displayVariant still prices the sticky bar.
 export default function BuyBox({ product, variant, displayVariant, packageSize }) {
-  const dispatch = useDispatch();
+  const router = useRouter();
+  const { addToCart, adding } = useAddToCart();
   const [quantity, setQuantity] = useState(1);
   const max = variant?.availableQty ?? 1;
   // Moving to a variant with less stock must not keep a quantity that it cannot fill.
@@ -38,12 +38,13 @@ export default function BuyBox({ product, variant, displayVariant, packageSize }
   const shown = displayVariant ?? product;
   const addLabel = displayVariant ? "Add to cart" : "Out of stock";
 
-  // T6.1 replaces this with the real cart.
-  const add = (message) => {
-    dispatch(
-      addToCartRequested({ variantId: variant.id, quantity: shownQuantity, size: packageSize?.id })
-    );
-    toast(message);
+  // The cart API has no field for a package's size yet, so that choice is not saved with the line.
+  const add = () => addToCart(product, variant, shownQuantity);
+
+  const buyNow = async () => {
+    if (await addToCart(product, variant, shownQuantity, { openDrawer: false })) {
+      router.push("/checkout");
+    }
   };
 
   return (
@@ -53,19 +54,10 @@ export default function BuyBox({ product, variant, displayVariant, packageSize }
         <p className="text-sm text-text/70">Choose a size to continue.</p>
       )}
       <div className="grid gap-2 sm:grid-cols-2">
-        <Button
-          size="lg"
-          disabled={!variant}
-          onClick={() => add("Add to cart is coming soon")}
-        >
+        <Button size="lg" disabled={!variant} loading={adding} onClick={add}>
           {addLabel}
         </Button>
-        <Button
-          size="lg"
-          variant="outline"
-          disabled={!variant}
-          onClick={() => add("Buy now is coming soon")}
-        >
+        <Button size="lg" variant="outline" disabled={!variant || adding} onClick={buyNow}>
           Buy now
         </Button>
       </div>
@@ -93,7 +85,7 @@ export default function BuyBox({ product, variant, displayVariant, packageSize }
         <span className="font-semibold text-primary">
           {formatBDT(shown.salePrice ?? shown.price)}
         </span>
-        <Button disabled={!variant} onClick={() => add("Add to cart is coming soon")}>
+        <Button disabled={!variant} loading={adding} onClick={add}>
           {addLabel}
         </Button>
       </div>
