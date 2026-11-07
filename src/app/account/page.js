@@ -1,10 +1,5 @@
-import Container from "@/components/ui/Container";
+import ProfileView from "@/components/account/ProfileView";
 
-// Placeholder so sign-in has somewhere to land. T6.3 builds the account pages.
 export default function AccountPage() {
-  return (
-    <Container className="py-8">
-      <h1 className="font-display text-3xl text-primary">My account</h1>
-    </Container>
-  );
+  return <ProfileView />;
 }
