@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import Container from "@/components/ui/Container";
 import { getCategories, getFabrics, getSettings } from "@/lib/api";
@@ -35,7 +36,15 @@ export default async function Header() {
               // eslint-disable-next-line @next/next/no-img-element -- any host the owner pastes; small and fixed height
               <img src={settings.logoUrl} alt={settings.shopName} className="h-9 w-auto md:h-10" />
             ) : (
-              settings.shopName
+              <Image
+                src="/ShariPori_Logo.png"
+                alt={settings.shopName}
+                width={1536}
+                height={1024}
+                sizes="96px"
+                priority
+                className="h-12 w-auto md:h-[3.75rem]"
+              />
             )}
           </Link>
           <div className="mx-auto hidden w-full max-w-xl md:block">

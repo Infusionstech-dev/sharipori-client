@@ -7,31 +7,8 @@ import PackagesSection from "@/components/home/PackagesSection";
 import ProductSection from "@/components/home/ProductSection";
 import TrustStrip from "@/components/home/TrustStrip";
 import { apiGet, getBanners, getCategories, getFabrics } from "@/lib/api";
-import { categoryHref } from "@/lib/siteConfig";
 
 export const revalidate = 300;
-
-// Shown only while no hero banners are set up in admin. Images come from featured products.
-const FALLBACK_BANNERS = [
-  {
-    title: "Traditional clothing for mother and baby",
-    subtitle: "Handpicked sarees and ready shari for every celebration.",
-    cta: "Shop mother's sarees",
-    href: categoryHref("mothers-saree"),
-  },
-  {
-    title: "Baby ready shari",
-    subtitle: "Easy to dress, made for little ones.",
-    cta: "Shop baby shari",
-    href: categoryHref("baby-ready-shari"),
-  },
-  {
-    title: "Combos that save more",
-    subtitle: "Sonamoni Combo and Maharani Package sets.",
-    cta: "See packages",
-    href: categoryHref("combo-packages"),
-  },
-];
 
 const getProducts = async (params) =>
   (await apiGet(`/products?${new URLSearchParams(params)}`, {
@@ -43,7 +20,6 @@ export default async function HomePage() {
   const [
     categories,
     fabrics,
-    featured,
     newest,
     popular,
     sonamoni,
@@ -55,7 +31,6 @@ export default async function HomePage() {
   ] = await Promise.all([
     getCategories(),
     getFabrics(),
-    getProducts({ featured: true, limit: FALLBACK_BANNERS.length }),
     getProducts({ type: "single", sort: "newest", limit: 8 }),
     getProducts({ type: "single", sort: "popular", limit: 8 }),
     getProducts({ type: "bundle", category: "sonamoni-combo", sort: "popular", limit: 1 }),
@@ -66,24 +41,19 @@ export default async function HomePage() {
     getBanners("home_middle"),
   ]);
 
-  const slides = heroBanners.length
-    ? heroBanners.map((banner) => ({
-        key: banner.id,
-        title: banner.title,
-        subtitle: banner.subtitle,
-        cta: banner.buttonText,
-        href: banner.link,
-        image: banner.imageUrl,
-        mobileImage: banner.mobileImageUrl,
-      }))
-    : FALLBACK_BANNERS.map((banner, index) => ({
-        ...banner,
-        image: featured[index]?.image ?? null,
-      }));
+  const slides = heroBanners.map((banner) => ({
+    key: banner.id,
+    title: banner.title,
+    subtitle: banner.subtitle,
+    cta: banner.buttonText,
+    href: banner.link,
+    image: banner.imageUrl,
+    mobileImage: banner.mobileImageUrl,
+  }));
 
   return (
     <>
-      <HeroSlider slides={slides} />
+      {slides.length > 0 && <HeroSlider slides={slides} />}
       <CategoryCards categories={categories} />
       {middleBanners.length ? (
         <PromoBanner banner={middleBanners[0]} />
