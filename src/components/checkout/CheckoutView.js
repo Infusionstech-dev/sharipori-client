@@ -149,10 +149,10 @@ export default function CheckoutView() {
   const couponError = quote?.errors.find((error) => error.field === "couponCode")?.message;
 
   useEffect(() => {
-    if (!cart.isLoading && !cart.items.length && !placed) {
+    if (!cart.isLoading && !cart.mergePending && !cart.items.length && !placed) {
       router.replace("/cart");
     }
-  }, [cart.isLoading, cart.items.length, placed, router]);
+  }, [cart.isLoading, cart.mergePending, cart.items.length, placed, router]);
 
   const onDistrictChange = (value) => {
     setValue("thana", "");
