@@ -6,7 +6,9 @@ export const MAX_LINE_QTY = 10;
 // The guest cart. Logged-in customers use the server cart instead (cartApi).
 // items: [{ variantId, quantity, snapshot: { name, image, price, size, color, slug, availableQty } }]
 // hydrated stays false until localStorage has been read, so nothing overwrites a saved cart early.
-const initialState = { items: [], hydrated: false };
+// mergeFailed is set when moving the guest items into the customer's cart after login kept
+// failing, so pages stop waiting for it.
+const initialState = { items: [], hydrated: false, mergeFailed: false };
 
 const maxFor = (item) =>
   Math.max(1, Math.min(item.snapshot?.availableQty ?? MAX_LINE_QTY, MAX_LINE_QTY));
@@ -38,6 +40,10 @@ const cartSlice = createSlice({
     },
     clear: (state) => {
       state.items = [];
+      state.mergeFailed = false;
+    },
+    setMergeFailed: (state, action) => {
+      state.mergeFailed = action.payload;
     },
     replaceAll: (state, action) => {
       state.items = action.payload;
@@ -60,7 +66,8 @@ const cartSlice = createSlice({
   },
 });
 
-export const { add, update, remove, clear, replaceAll, syncFromServer } = cartSlice.actions;
+export const { add, update, remove, clear, replaceAll, setMergeFailed, syncFromServer } =
+  cartSlice.actions;
 export default cartSlice.reducer;
 
 const isItem = (item) =>

@@ -6,11 +6,11 @@ import AccountMenu from "./AccountMenu";
 import AnnouncementBar from "./AnnouncementBar";
 import CartLink from "./CartLink";
 import HeaderShell from "./HeaderShell";
-import { HeartIcon } from "./icons";
 import MegaMenu from "./MegaMenu";
 import MobileMenu from "./MobileMenu";
 import MobileSearch from "./MobileSearch";
 import SearchBar from "./SearchBar";
+import WishlistLink from "./WishlistLink";
 
 const ICON_LINK_CLASS =
   "flex size-11 shrink-0 items-center justify-center rounded-lg hover:bg-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary";
@@ -54,13 +54,7 @@ export default async function Header() {
             <div className="md:hidden">
               <MobileSearch />
             </div>
-            <Link
-              href="/wishlist"
-              aria-label="Wishlist"
-              className={`${ICON_LINK_CLASS} hidden md:flex`}
-            >
-              <HeartIcon />
-            </Link>
+            <WishlistLink className={`${ICON_LINK_CLASS} hidden md:flex`} />
             <CartLink className={ICON_LINK_CLASS} />
             <div className="hidden md:block">
               <AccountMenu />

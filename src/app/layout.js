@@ -2,6 +2,7 @@ import { Hind_Siliguri, Inter, Playfair_Display } from "next/font/google";
 import AuthBootstrap from "@/components/auth/AuthBootstrap";
 import CartDrawer from "@/components/cart/CartDrawer";
 import CartSync from "@/components/cart/CartSync";
+import WishlistSync from "@/components/wishlist/WishlistSync";
 import AppToaster from "@/components/layout/AppToaster";
 import BottomNav from "@/components/layout/BottomNav";
 import FloatingChat from "@/components/layout/FloatingChat";
@@ -44,6 +45,7 @@ export default function RootLayout({ children }) {
         <StoreProvider>
           <AuthBootstrap />
           <CartSync />
+          <WishlistSync />
           <Header />
           <main className="flex-1">{children}</main>
           <Footer />

@@ -11,6 +11,13 @@ import cartReducer, {
   update,
 } from "./slices/cartSlice";
 import uiReducer from "./slices/uiSlice";
+import wishlistReducer, {
+  clear as clearWishlist,
+  remove as removeFromWishlist,
+  replaceAll as replaceWishlist,
+  saveWishlist,
+  toggle as toggleWishlist,
+} from "./slices/wishlistSlice";
 
 export const makeStore = () => {
   // Writes the guest cart to localStorage after every change to it.
@@ -25,14 +32,29 @@ export const makeStore = () => {
     },
   });
 
+  // The same for the wishlist.
+  const wishlistPersistence = createListenerMiddleware();
+  wishlistPersistence.startListening({
+    matcher: isAnyOf(toggleWishlist, removeFromWishlist, clearWishlist, replaceWishlist),
+    effect: (action, api) => {
+      const { ids, hydrated } = api.getState().wishlist;
+      if (hydrated) {
+        saveWishlist(ids);
+      }
+    },
+  });
+
   return configureStore({
     reducer: {
       auth: authReducer,
       cart: cartReducer,
+      wishlist: wishlistReducer,
       ui: uiReducer,
       [baseApi.reducerPath]: baseApi.reducer,
     },
     middleware: (getDefaultMiddleware) =>
-      getDefaultMiddleware().prepend(cartPersistence.middleware).concat(baseApi.middleware),
+      getDefaultMiddleware()
+        .prepend(cartPersistence.middleware, wishlistPersistence.middleware)
+        .concat(baseApi.middleware),
   });
 };
