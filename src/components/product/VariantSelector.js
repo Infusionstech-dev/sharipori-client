@@ -37,7 +37,7 @@ export default function VariantSelector({ variants, selected, onSelect }) {
   return (
     <div className="space-y-4">
       {colors.length > 0 && (
-        <fieldset>
+        <fieldset data-size-picker>
           <legend className="mb-2 text-sm font-semibold">
             Colour{selected?.color && <span className="font-normal">: {selected.color.name}</span>}
           </legend>
@@ -72,7 +72,7 @@ export default function VariantSelector({ variants, selected, onSelect }) {
       )}
 
       {sizes.length > 0 && (
-        <fieldset>
+        <fieldset data-size-picker>
           <div className="mb-2 flex items-center justify-between gap-2">
             <legend className="text-sm font-semibold">Size</legend>
             {showGuide && (

@@ -29,10 +29,12 @@ export const ISSUES = {
 
 const BLOCKING = ["out_of_stock", "unavailable"];
 
-// compact is the drawer version: no stepper, no explanations.
+// compact is the drawer version: no remove button, no explanations. It shows the stepper
+// only when onQuantity is given.
 export default function CartLine({ line, notice, onQuantity, onRemove, compact = false }) {
   const issue = ISSUES[notice ?? line.status];
   const blocked = BLOCKING.includes(line.status);
+  const stepper = !blocked && (!compact || Boolean(onQuantity));
   const variant = [line.color, line.size].filter(Boolean).join(" / ");
   const href = line.slug ? `/product/${line.slug}` : null;
 
@@ -81,9 +83,9 @@ export default function CartLine({ line, notice, onQuantity, onRemove, compact =
                 {formatBDT(line.regularPrice)}
               </del>
             )}
-            {compact && <span className="text-text/70"> × {line.quantity}</span>}
+            {compact && !stepper && <span className="text-text/70"> × {line.quantity}</span>}
           </p>
-          {!compact && !blocked && (
+          {stepper && (
             <QuantityStepper
               value={line.quantity}
               max={line.maxQty}
