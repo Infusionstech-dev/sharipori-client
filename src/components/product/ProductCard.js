@@ -3,6 +3,7 @@ import Highlight from "@/components/listing/Highlight";
 import Badge from "@/components/ui/Badge";
 import PriceTag from "@/components/ui/PriceTag";
 import RemoteImage from "@/components/ui/RemoteImage";
+import WishlistButton from "@/components/wishlist/WishlistButton";
 import AddToCartButton from "./AddToCartButton";
 
 const IMAGE_SIZES = "(min-width: 1024px) 25vw, (min-width: 768px) 33vw, 50vw";
@@ -31,6 +32,11 @@ export default function ProductCard({ product, highlight }) {
           {isNew && <Badge variant="primary">New</Badge>}
           {discountPercent > 0 && <Badge variant="accent">-{discountPercent}%</Badge>}
         </div>
+        <WishlistButton
+          productId={product.id}
+          name={nameEn}
+          className="absolute right-2 top-2"
+        />
         {!inStock && (
           <div className="absolute inset-0 flex items-center justify-center bg-white/60">
             <Badge variant="neutral">Out of stock</Badge>

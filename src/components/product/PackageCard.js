@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Badge from "@/components/ui/Badge";
 import RemoteImage from "@/components/ui/RemoteImage";
+import WishlistButton from "@/components/wishlist/WishlistButton";
 import { formatBDT } from "@/lib/format";
 
 export default function PackageCard({ product, label }) {
@@ -19,6 +20,11 @@ export default function PackageCard({ product, label }) {
             className="object-cover"
           />
         )}
+        <WishlistButton
+          productId={product.id}
+          name={nameEn}
+          className="absolute right-3 top-3"
+        />
         {savings > 0 && (
           <Badge variant="accent" className="absolute left-3 top-3">
             Save {formatBDT(savings)}

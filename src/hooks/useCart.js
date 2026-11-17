@@ -98,7 +98,7 @@ export default function useCart() {
     isLoading: deciding || (loggedIn && server.isLoading),
     // Just after login the saved guest items are still moving into the customer's cart, and the
     // server cart looks empty until that is done.
-    mergePending: loggedIn && guest.items.length > 0,
+    mergePending: loggedIn && guest.items.length > 0 && !guest.mergeFailed,
     isError: loggedIn && server.isError,
     refetch: server.refetch,
   };

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import PriceTag from "@/components/ui/PriceTag";
+import WishlistButton from "@/components/wishlist/WishlistButton";
 import { fabricHref } from "@/lib/siteConfig";
 
 const LOW_STOCK = 3;
@@ -17,7 +18,14 @@ export default function ProductInfo({ product, variant }) {
 
   return (
     <div className="space-y-2">
-      <h1 className="font-display text-3xl text-primary">{nameEn}</h1>
+      <div className="flex items-start justify-between gap-3">
+        <h1 className="font-display text-3xl text-primary">{nameEn}</h1>
+        <WishlistButton
+          productId={product.id}
+          name={nameEn}
+          className="relative shrink-0 border border-soft"
+        />
+      </div>
       {nameBn && <p className="font-bangla text-text/70">{nameBn}</p>}
       {fabric && (
         <Link

@@ -7,6 +7,7 @@ import useEmblaCarousel from "embla-carousel-react";
 import clsx from "clsx";
 import { Pause, Play } from "lucide-react";
 import RemoteImage from "@/components/ui/RemoteImage";
+import BannerImage from "./BannerImage";
 
 const AUTOPLAY_MS = 5000;
 
@@ -59,12 +60,18 @@ export default function HeroSlider({ slides }) {
               role="group"
               aria-roledescription="slide"
               aria-label={`${index + 1} of ${slides.length}`}
-              className="grid h-96 min-w-0 flex-[0_0_100%] grid-cols-[3fr_2fr] bg-primary text-white md:h-[28rem] md:grid-cols-2"
+              className="flex min-w-0 flex-[0_0_100%] flex-col bg-primary text-white lg:grid lg:grid-cols-[2fr_3fr]"
             >
-              <div className="flex flex-col items-start justify-center gap-3 px-4 sm:px-8 lg:px-16">
-                <h2 className="font-display text-2xl md:text-5xl">{slide.title}</h2>
+              {/* Text on the left on desktops; under the picture on phones and tablets. */}
+              <div
+                className={clsx(
+                  "order-2 flex flex-col items-start justify-center gap-3 px-4 pt-6 sm:px-8 lg:order-1 lg:px-16 lg:py-10",
+                  slides.length > 1 ? "pb-16" : "pb-6"
+                )}
+              >
+                <h2 className="font-display text-2xl md:text-3xl xl:text-5xl">{slide.title}</h2>
                 {slide.subtitle && (
-                  <p className="text-sm text-white/90 md:text-lg">{slide.subtitle}</p>
+                  <p className="text-sm text-white/90 md:text-base lg:text-lg">{slide.subtitle}</p>
                 )}
                 {slide.href && slide.cta && (
                   <Link
@@ -75,24 +82,27 @@ export default function HeroSlider({ slides }) {
                   </Link>
                 )}
               </div>
-              <div className="relative bg-white/10">
+              {/* The picture keeps its own shape, so nothing in it is cut off. */}
+              <div className="relative order-1 flex items-center overflow-hidden bg-soft lg:order-2">
+                {/* Beside the text the panel can be taller than the picture. A soft, blurred copy
+                    fills the spare space, so the picture itself is never cropped. */}
                 {slide.image && (
                   <RemoteImage
                     src={slide.image}
                     fill
-                    priority={index === 0}
-                    sizes="(min-width: 768px) 50vw, 40vw"
-                    className={slide.mobileImage ? "hidden object-cover md:block" : "object-cover"}
+                    sizes="100vw"
+                    className="hidden scale-110 object-cover opacity-70 blur-2xl lg:block"
                   />
                 )}
-                {/* A phone-shaped image, when the banner has one. display:none skips the other download. */}
-                {slide.mobileImage && (
-                  <RemoteImage
-                    src={slide.mobileImage}
-                    fill
+                {slide.image && (
+                  <BannerImage
+                    image={slide.image}
+                    mobileImage={slide.mobileImage}
+                    alt={slide.title}
+                    href={slide.href}
                     priority={index === 0}
-                    sizes="40vw"
-                    className="object-cover md:hidden"
+                    className="w-full"
+                    imageClassName="relative"
                   />
                 )}
               </div>
