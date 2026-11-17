@@ -14,7 +14,6 @@ const HELP_LINKS = [
   ["Terms", pageHref("terms")],
 ];
 
-const PAYMENT_METHODS = ["COD", "bKash", "Nagad", "Cards"];
 
 const LINK_CLASS =
   "inline-block py-1 hover:text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary";
@@ -123,17 +122,7 @@ export default async function Footer() {
       </Container>
 
       <div className="border-t border-primary/10">
-        <Container className="flex flex-col items-center justify-between gap-3 py-4 sm:flex-row">
-          <ul aria-label="Payment methods" className="flex flex-wrap justify-center gap-2">
-            {PAYMENT_METHODS.map((method) => (
-              <li
-                key={method}
-                className="rounded border border-primary/20 bg-white px-2.5 py-1 text-xs font-semibold"
-              >
-                {method}
-              </li>
-            ))}
-          </ul>
+        <Container className="flex justify-center py-4">
           <p className="text-xs text-text/70">
             © {new Date().getFullYear()} {shopName}
           </p>

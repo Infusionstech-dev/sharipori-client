@@ -6,7 +6,7 @@ export const metadata = {
   robots: { index: false },
 };
 
-// CheckoutGate sends guests to log in. CheckoutView sends an empty cart back to /cart once the cart has loaded.
+// Guests check out without logging in. CheckoutView sends an empty cart back to /cart once the cart has loaded.
 export default function CheckoutPage() {
   return (
     <Container className="py-6">
