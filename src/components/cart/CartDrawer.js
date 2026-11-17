@@ -1,9 +1,11 @@
 "use client";
 
 import Link from "next/link";
+import toast from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import Drawer from "@/components/ui/Drawer";
 import useCart from "@/hooks/useCart";
+import { serverMessage } from "@/lib/authForms";
 import { formatBDT } from "@/lib/format";
 import { setCartDrawerOpen } from "@/store/slices/uiSlice";
 import CartLine from "./CartLine";
@@ -14,8 +16,14 @@ const LINK_CLASS =
 export default function CartDrawer() {
   const dispatch = useDispatch();
   const open = useSelector((state) => state.ui.cartDrawerOpen);
-  const { items, subtotal, count } = useCart();
+  const cart = useCart();
+  const { items, subtotal, count } = cart;
   const close = () => dispatch(setCartDrawerOpen(false));
+
+  const changeQuantity = (line, quantity) =>
+    Promise.resolve(cart.update(line, quantity)).catch((error) =>
+      toast.error(serverMessage(error, "Could not update your cart. Please try again."))
+    );
 
   return (
     <Drawer open={open} onClose={close} title={`Your cart (${count})`}>
@@ -23,7 +31,7 @@ export default function CartDrawer() {
         <div className="flex h-full flex-col">
           <ul className="flex-1 divide-y divide-soft">
             {items.map((line) => (
-              <CartLine key={line.key} line={line} compact />
+              <CartLine key={line.key} line={line} compact onQuantity={changeQuantity} />
             ))}
           </ul>
           <div className="sticky bottom-0 -mx-4 -mb-4 space-y-3 border-t border-soft bg-white p-4">
@@ -47,6 +55,13 @@ export default function CartDrawer() {
                 Checkout
               </Link>
             </div>
+            <Link
+              href="/"
+              onClick={close}
+              className={`${LINK_CLASS} w-full border border-primary text-primary hover:bg-soft`}
+            >
+              Continue shopping
+            </Link>
           </div>
         </div>
       ) : (

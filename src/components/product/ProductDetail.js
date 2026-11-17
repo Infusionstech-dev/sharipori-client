@@ -39,7 +39,7 @@ export default function ProductDetail({
         {packageItems}
         <VariantSelector variants={variants} selected={variant} onSelect={selectVariant} />
         {sizeOptions.length > 0 && (
-          <fieldset>
+          <fieldset data-size-picker>
             <legend className="mb-2 text-sm font-semibold">Choose size</legend>
             <div className="flex flex-wrap gap-2">
               {sizeOptions.map((size) => (

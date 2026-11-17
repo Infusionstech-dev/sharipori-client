@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { MessageCircle } from "lucide-react";
+import toast from "react-hot-toast";
 import Button from "@/components/ui/Button";
 import { formatBDT } from "@/lib/format";
 import QuantityStepper from "./QuantityStepper";
@@ -36,11 +37,26 @@ export default function BuyBox({ product, variant, displayVariant, packageSize, 
 
   const shown = displayVariant ?? product;
   const addLabel = displayVariant ? "Add to cart" : "Out of stock";
+  // In stock, but a size still has to be picked. The buttons stay clickable so they can say so.
+  const needsChoice = Boolean(displayVariant) && !variant;
+  const [triedWithoutSize, setTriedWithoutSize] = useState(false);
+
+  const askForSize = () => {
+    setTriedWithoutSize(true);
+    toast.error("Please select a size first.", { id: "select-size" });
+    document
+      .querySelector("[data-size-picker]")
+      ?.scrollIntoView({ behavior: "smooth", block: "center" });
+  };
 
   // The cart API has no field for a package's size yet, so that choice is not saved with the line.
-  const add = () => addToCart(product, variant, shownQuantity);
+  const add = () => (needsChoice ? askForSize() : addToCart(product, variant, shownQuantity));
 
   const buyNow = async () => {
+    if (needsChoice) {
+      askForSize();
+      return;
+    }
     if (await addToCart(product, variant, shownQuantity, { openDrawer: false })) {
       router.push("/checkout");
     }
@@ -49,14 +65,19 @@ export default function BuyBox({ product, variant, displayVariant, packageSize, 
   return (
     <div className="space-y-3">
       <QuantityStepper value={shownQuantity} max={max} onChange={setQuantity} disabled={!variant} />
-      {displayVariant && !variant && (
-        <p className="text-sm text-text/70">Choose a size to continue.</p>
-      )}
+      {needsChoice &&
+        (triedWithoutSize ? (
+          <p role="alert" className="text-sm font-medium text-red-700">
+            ⚠ Please select a size before adding to cart.
+          </p>
+        ) : (
+          <p className="text-sm text-text/70">Choose a size to continue.</p>
+        ))}
       <div className="grid gap-2 sm:grid-cols-2">
-        <Button size="lg" disabled={!variant} loading={adding} onClick={add}>
+        <Button size="lg" disabled={!displayVariant} loading={adding} onClick={add}>
           {addLabel}
         </Button>
-        <Button size="lg" variant="outline" disabled={!variant || adding} onClick={buyNow}>
+        <Button size="lg" variant="outline" disabled={!displayVariant || adding} onClick={buyNow}>
           Buy now
         </Button>
       </div>
@@ -84,7 +105,7 @@ export default function BuyBox({ product, variant, displayVariant, packageSize, 
         <span className="font-semibold text-primary">
           {formatBDT(shown.salePrice ?? shown.price)}
         </span>
-        <Button disabled={!variant} loading={adding} onClick={add}>
+        <Button disabled={!displayVariant} loading={adding} onClick={add}>
           {addLabel}
         </Button>
       </div>
